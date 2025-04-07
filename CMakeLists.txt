@@ -16,7 +16,7 @@ FetchContent_MakeAvailable(SFML)
 
 add_executable(${PROJECT_NAME}
 src/main.cpp
-src/Resolutions.cpp "src/Field.h" "src/Field.cpp" "src/Tet.h" "src/Tet.cpp" "src/Colors.h" "src/Colors.cpp" "src/Position.h" "src/Position.cpp")
+src/Resolutions.cpp "src/Field.h" "src/Field.cpp" "src/Tet.h" "src/Tet.cpp" "src/Colors.h" "src/Colors.cpp" "src/Position.h" "src/Position.cpp" "src/Tets.h" "src/Tets.cpp")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-network sfml-audio)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)

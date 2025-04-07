@@ -1,5 +1,6 @@
 #include "Field.h"
 using namespace sf;
+using namespace std;
 
 size_t cellSize = 40;
 const float Field::thickness = 5.f;
@@ -18,7 +19,7 @@ Field::Field()
 		});
 }
 
-void Field::forEachGridCell(std::function<void(size_t, size_t)> func)
+void Field::forEachGridCell(function<void(size_t, size_t)> func)
 {
 	for (size_t y = 0; y < COLUMNS; ++y)
 	{
