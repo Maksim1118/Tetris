@@ -3,6 +3,7 @@
 #include "Tet.h"
 
 class LTet : public Tet
+{
 public:
 	LTet();
 };
