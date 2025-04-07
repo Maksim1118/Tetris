@@ -1,12 +1,15 @@
 #include <SFML/Graphics.hpp>
+
+#include "Field.h"
 using namespace sf;
+using namespace std;
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode({ 200, 200 }), "SFML works!");
-    sf::CircleShape shape(100.f);
-    shape.setFillColor(sf::Color::Green);
-
+    sf::RenderWindow window(sf::VideoMode({ 1080, 1080 }), "SFML works!");
+    
+    Field field;
+    field.setPosition(Vector2f(0.f, 0.f));
     while (window.isOpen())
     {
         Event event;
@@ -17,7 +20,7 @@ int main()
         }
 
         window.clear();
-        window.draw(shape);
+        field.draw(window);
         window.display();
     }
 }
