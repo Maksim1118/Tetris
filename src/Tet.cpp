@@ -7,7 +7,6 @@ Tet::Tet()
 	: m_RowOffset(0), m_ColumnOffset(0), m_OffsetWindow(0.f, 0.f)
 {
 	m_Colors = getColors();
-	m_State = getRandomRotationState();
 }
 
 void Tet::setPosition(Vector2f pos)
@@ -31,7 +30,7 @@ void Tet::draw(RenderTarget& target)
 
 RotationState Tet::getRandomRotationState()
 {
-	size_t randIndex = rand() % stateCount;
+	size_t randIndex = rand() % m_Figure.size();
 	return static_cast<RotationState>(randIndex);
 }
 
@@ -39,6 +38,44 @@ void Tet::move(size_t rows, size_t columns)
 {
 	m_RowOffset += rows;
 	m_ColumnOffset += columns;
+}
+
+void Tet::rotate()
+{
+	switch (m_State)
+	{
+	case RotationState::UP:
+		m_State = RotationState::RIGHT;
+		break;
+	case RotationState::RIGHT:
+		m_State = RotationState::DOWN;
+		break;
+	case RotationState::DOWN:
+		m_State = RotationState::LEFT;
+		break;
+	case RotationState::LEFT:
+		m_State = RotationState::UP;
+		break;
+	}
+}
+
+void Tet::undoRotate()
+{
+	switch (m_State)
+	{
+	case RotationState::UP:
+		m_State = RotationState::LEFT;
+		break;
+	case RotationState::RIGHT:
+		m_State = RotationState::UP;
+		break;
+	case RotationState::DOWN:
+		m_State = RotationState::RIGHT;
+		break;
+	case RotationState::LEFT:
+		m_State = RotationState::DOWN;
+		break;
+	}
 }
 
 size_t Tet::calcWidth(const vector<Position>& positions)

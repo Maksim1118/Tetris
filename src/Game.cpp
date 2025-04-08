@@ -9,7 +9,7 @@ Game::Game()
 	m_Tets = { LTet(), JTet(), ITet(), OTet(), STet(), TTet(), ZTet() };
 	shuffleTets();
 	m_CurrTet = m_Tets.at(m_CurrTetIndex);
-	m_NextTet = m_Tets.at(m_CurrTetIndex+1);
+	/*m_NextTet = m_Tets.at(m_CurrTetIndex+1);*/
 
 	m_Field.setPosition(Vector2f(0.f, 0.f));
 	m_CurrTet.setPosition(Vector2f(0.f, 0.f));
@@ -62,6 +62,15 @@ void Game::moveTetDown()
 	}
 }
 
+void Game::rotateTet()
+{
+	m_CurrTet.rotate();
+	if (isTetOutside())
+	{
+		m_CurrTet.undoRotate();
+	}
+}
+
 void Game::handleEvent(Event& event)
 {
 	if (event.type == Event::KeyPressed)
@@ -83,6 +92,11 @@ void Game::handleEvent(Event& event)
 			case Keyboard::Down:
 			{
 				m_IsTetDrop = true;
+				break;
+			}
+			case Keyboard::Up:
+			{
+				rotateTet();
 				break;
 			}
 		}

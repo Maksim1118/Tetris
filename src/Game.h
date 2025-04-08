@@ -20,6 +20,7 @@ public:
 	void moveTetDown();
 private:
 	bool isTetOutside();
+	void rotateTet();
 	void shuffleTets();
 	Field m_Field;
 	std::vector<Tet> m_Tets;

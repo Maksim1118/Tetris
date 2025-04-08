@@ -23,9 +23,12 @@ public:
 	void draw(sf::RenderTarget& target);
 	std::vector<Position> getCellPositions();
 	void move(size_t rows, size_t columns);
+	void rotate();
+	void undoRotate();
 protected:
 	size_t calcWidth(const std::vector<Position>& positions);
 	void normalizePos(const std::vector<Position>& positions);
+	RotationState getRandomRotationState();
 
 	RotationState m_State;
 	Figure m_Figure;
@@ -37,7 +40,4 @@ protected:
 	sf::Vector2f m_OffsetWindow;
 
 	Colors m_Colors;
-private:
-	RotationState getRandomRotationState();
-	static const size_t stateCount = 4;
 };
