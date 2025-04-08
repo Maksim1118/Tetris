@@ -21,8 +21,8 @@ public:
 	Tet();
 	void setPosition(sf::Vector2f pos);
 	void draw(sf::RenderTarget& target);
-	void move(size_t rows, size_t columns);
 	std::vector<Position> getCellPositions();
+	void move(size_t rows, size_t columns);
 protected:
 	size_t calcWidth(const std::vector<Position>& positions);
 	void normalizePos(const std::vector<Position>& positions);

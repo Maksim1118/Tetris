@@ -38,10 +38,12 @@ LTet::LTet()
 
 OTet::OTet()
 {
+	if (m_State != RotationState::UP)
+		m_State = RotationState::UP;
 	m_ColorIndex = 3;
 	m_Figure[RotationState::UP] = { Position(0,0), Position(0, 1), Position(1,0), Position(1,1) };
-	size_t width = calcWidth(m_Figure[RotationState::UP]);
-	normalizePos(m_Figure[RotationState::UP]);
+	size_t width = calcWidth(m_Figure[m_State]);
+	normalizePos(m_Figure[m_State]);
 	move((ROWS - width) / 2, 0);
 }
 
