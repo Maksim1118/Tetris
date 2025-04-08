@@ -25,6 +25,7 @@ public:
 	void move(size_t rows, size_t columns);
 	void rotate();
 	void undoRotate();
+	sf::Color getColor();
 protected:
 	size_t calcWidth(const std::vector<Position>& positions);
 	void normalizePos(const std::vector<Position>& positions);

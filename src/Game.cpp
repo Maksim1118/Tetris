@@ -1,4 +1,5 @@
 #include "Game.h"
+#include <stdexcept>
 
 using namespace sf;
 using namespace std;
@@ -8,8 +9,13 @@ Game::Game()
 {
 	m_Tets = { LTet(), JTet(), ITet(), OTet(), STet(), TTet(), ZTet() };
 	shuffleTets();
+
+	if (m_Tets.size() == 0)
+	{
+		throw runtime_error("fail initialize vector Tets");
+	}
 	m_CurrTet = m_Tets.at(m_CurrTetIndex);
-	/*m_NextTet = m_Tets.at(m_CurrTetIndex+1);*/
+	m_NextTet = m_Tets.at(m_CurrTetIndex+1);
 
 	m_Field.setPosition(Vector2f(0.f, 0.f));
 	m_CurrTet.setPosition(Vector2f(0.f, 0.f));
@@ -42,6 +48,16 @@ void Game::moveTetRight()
 	}
 }
 
+void Game::moveTetDown()
+{
+	m_CurrTet.move(0, 1);
+	if (isTetOutside() || !isTetFitsEmptyCell())
+	{
+		m_CurrTet.move(0, -1);
+		lockTet();
+	}
+}
+
 bool Game::isTetOutside()
 {
 	vector<Position> tiles = m_CurrTet.getCellPositions();
@@ -53,13 +69,15 @@ bool Game::isTetOutside()
 	return false;
 }
 
-void Game::moveTetDown()
+bool Game::isTetFitsEmptyCell()
 {
-	m_CurrTet.move(0, 1);
-	if (isTetOutside())
+	vector<Position> tiles = m_CurrTet.getCellPositions();
+	for (const auto& tile : tiles)
 	{
-		m_CurrTet.move(0, -1);
+		if (!m_Field.isCellEmpty(tile.m_Rows, tile.m_Columns))
+			return false;
 	}
+	return true;
 }
 
 void Game::rotateTet()
@@ -68,6 +86,25 @@ void Game::rotateTet()
 	if (isTetOutside())
 	{
 		m_CurrTet.undoRotate();
+	}
+}
+
+void Game::lockTet()
+{
+	m_IsTetDrop = false;
+	vector<Position> tiles = m_CurrTet.getCellPositions();
+	for (const auto& tile : tiles)
+	{
+		m_Field.getGrid()[tile.m_Rows][tile.m_Columns].setFillColor(m_CurrTet.getColor());
+	}
+	m_CurrTet = m_NextTet;
+	m_CurrTet.setPosition(Vector2f(0.f, 0.f));// temp func
+	++m_CurrTetIndex;
+	if (m_CurrTetIndex + 1 == m_Tets.size())
+	{
+		m_CurrTetIndex = 0;
+		shuffleTets();
+		m_NextTet = m_Tets[m_CurrTetIndex];
 	}
 }
 
@@ -114,7 +151,7 @@ void Game::timeElapsed(float diff)
 		m_ElapsedTime = 0.f;
 		if (currentDropInterval > DROP_INTERVAL_MIN)
 		{
-			m_DropInterval -= 0.02f;
+			m_DropInterval -= 0.002f;
 			if (m_DropInterval < DROP_INTERVAL_MIN)
 				m_DropInterval = DROP_INTERVAL_MIN;
 		}

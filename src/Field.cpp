@@ -6,15 +6,17 @@ size_t cellSize = 40;
 
 Field::Field()
 {
+	m_Colors = getColors();
+
 	m_Frame.setSize(Vector2f((cellSize) * ROWS, (cellSize) * COLUMNS));
-	m_Frame.setFillColor(Color(70, 70, 70));
+	m_Frame.setFillColor(Color(200, 200, 200));
 	m_Frame.setOutlineThickness(thicknessFrame);
 	m_Frame.setOutlineColor(Color(170, 220, 20));
 
 	forEachGridCell([this](size_t x, size_t y)
 		{
 			m_Grid[x][y].setSize(Vector2f((float)cellSize * 0.95f, (float)cellSize * 0.95f));
-			m_Grid[x][y].setFillColor(Color::Black);
+			m_Grid[x][y].setFillColor(m_Colors.at(0));
 		});
 }
 
@@ -32,6 +34,16 @@ void Field::forEachGridCell(function<void(size_t, size_t)> func)
 bool Field::isCollision(size_t row, size_t column)
 {
 	return !(row >= 0 && row < ROWS && column >= 0 && column < COLUMNS);
+}
+
+bool Field::isCellEmpty(size_t row, size_t column)
+{
+	return m_Colors[0] == m_Grid[row][column].getFillColor();
+}
+
+Grid& Field::getGrid()
+{
+	return m_Grid;
 }
 
 void Field::setPosition(Vector2f pos)

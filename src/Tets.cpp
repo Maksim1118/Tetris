@@ -2,7 +2,7 @@
 
 ITet::ITet()
 {
-	m_ColorIndex = 0;
+	m_ColorIndex = 1;
 	m_Figure[RotationState::LEFT] = { Position(0,2), Position(1, 2), Position(2,2), Position(3,2) };
 	m_Figure[RotationState::RIGHT] = { Position(0,1), Position(1, 1), Position(2,1), Position(3,1) };
 	m_Figure[RotationState::UP] = { Position(2,0), Position(2, 1), Position(2,2), Position(2,3) };
@@ -15,7 +15,7 @@ ITet::ITet()
 
 JTet::JTet()
 {
-	m_ColorIndex = 1;
+	m_ColorIndex = 2;
 	m_Figure[RotationState::LEFT] = { Position(0,0), Position(0, 1), Position(1,1), Position(2,1) };
 	m_Figure[RotationState::RIGHT] = { Position(0,1), Position(1, 1), Position(2,1), Position(2,2) };
 	m_Figure[RotationState::UP] = { Position(1,0), Position(1, 1), Position(1,2), Position(0,2) };
@@ -28,7 +28,7 @@ JTet::JTet()
 
 LTet::LTet()
 {
-	m_ColorIndex = 2;
+	m_ColorIndex = 3;
 	m_Figure[RotationState::LEFT] = { Position(0,2), Position(0, 1), Position(1,1), Position(2,1) };
 	m_Figure[RotationState::RIGHT] = { Position(0,1), Position(1, 1), Position(2,0), Position(2,1) };
 	m_Figure[RotationState::UP] = { Position(1,0), Position(1, 1), Position(1,2), Position(2,2) };
@@ -41,9 +41,7 @@ LTet::LTet()
 
 OTet::OTet()
 {
-	if (m_State != RotationState::UP)
-		m_State = RotationState::UP;
-	m_ColorIndex = 3;
+	m_ColorIndex = 4;
 	m_Figure[RotationState::UP] = { Position(0,0), Position(0, 1), Position(1,0), Position(1,1) };
 	m_State = getRandomRotationState();
 	size_t width = calcWidth(m_Figure[m_State]);
@@ -53,7 +51,7 @@ OTet::OTet()
 
 STet::STet()
 {
-	m_ColorIndex = 4;
+	m_ColorIndex = 5;
 	m_Figure[RotationState::LEFT] = { Position(1,0), Position(1, 1), Position(2,1), Position(2,2) };
 	m_Figure[RotationState::RIGHT] = { Position(0,0), Position(0,1), Position(1,1), Position(1,2) };
 	m_Figure[RotationState::UP] = { Position(0,1), Position(1, 1), Position(1,0), Position(2,0) };
@@ -66,7 +64,7 @@ STet::STet()
 
 TTet::TTet()
 {
-	m_ColorIndex = 5;
+	m_ColorIndex = 6;
 	m_Figure[RotationState::LEFT] = { Position(0,1), Position(1, 0), Position(1,1), Position(1,2) };
 	m_Figure[RotationState::RIGHT] = { Position(1,0), Position(1, 1), Position(2,1), Position(1,2) };
 	m_Figure[RotationState::UP] = { Position(0,1), Position(1,1), Position(1,2), Position(2,1) };
@@ -79,7 +77,7 @@ TTet::TTet()
 
 ZTet::ZTet()
 {
-	m_ColorIndex = 6;
+	m_ColorIndex = 7;
 	m_Figure[RotationState::LEFT] = { Position(0,2), Position(0,1), Position(1,1), Position(1,0) };
 	m_Figure[RotationState::RIGHT] = { Position(1,2), Position(1, 1), Position(2,1), Position(2,0) };
 	m_Figure[RotationState::UP] = { Position(0,0), Position(1,0), Position(1,1), Position(2,1) };

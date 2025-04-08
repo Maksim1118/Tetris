@@ -20,7 +20,11 @@ public:
 	void moveTetDown();
 private:
 	bool isTetOutside();
+	bool isTetFitsEmptyCell();
+
 	void rotateTet();
+	void lockTet();
+
 	void shuffleTets();
 	Field m_Field;
 	std::vector<Tet> m_Tets;

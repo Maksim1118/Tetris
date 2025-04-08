@@ -22,7 +22,7 @@ void Tet::draw(RenderTarget& target)
 	{
 		RectangleShape cell;
 		cell.setSize(Vector2f((float)cellSize * 0.95f, (float)cellSize * 0.95f));
-		cell.setFillColor(Color::White/*m_Colors[m_ColorIndex]*/);
+		cell.setFillColor(m_Colors[m_ColorIndex]);
 		cell.setPosition(m_OffsetWindow.x + tile.m_Rows * cellSize + 1, m_OffsetWindow.y + tile.m_Columns * cellSize + 1);
 		target.draw(cell);
 	}
@@ -42,6 +42,8 @@ void Tet::move(size_t rows, size_t columns)
 
 void Tet::rotate()
 {
+	if (m_Figure.size() == 1) return;
+
 	switch (m_State)
 	{
 	case RotationState::UP:
@@ -61,6 +63,8 @@ void Tet::rotate()
 
 void Tet::undoRotate()
 {
+	if (m_Figure.size() == 1) return;
+
 	switch (m_State)
 	{
 	case RotationState::UP:
@@ -76,6 +80,11 @@ void Tet::undoRotate()
 		m_State = RotationState::DOWN;
 		break;
 	}
+}
+
+Color Tet::getColor()
+{
+	return m_Colors[m_ColorIndex];
 }
 
 size_t Tet::calcWidth(const vector<Position>& positions)
