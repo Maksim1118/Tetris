@@ -46,6 +46,53 @@ Grid& Field::getGrid()
 	return m_Grid;
 }
 
+void Field::clearFullRows()
+{
+	size_t completed = 0;
+	for (int y = COLUMNS - 1; y >= 0; --y)
+	{
+		if (isRowFull(y))
+		{
+			clearRow(y);
+			++completed;
+		}
+		/*else if(completed > 0)
+		{
+			moveRowDown(x, completed);
+		}*/
+	}
+}
+
+bool Field::isRowFull(size_t column)
+{
+	for (size_t x = 0; x < ROWS; ++x)
+	{
+		cout << x << "  " << column << endl;
+		if (m_Grid[x][column].getFillColor() == m_Colors[0])
+		{
+			return false;
+		}
+	}
+	return true;
+}
+
+void Field::clearRow(size_t column)
+{
+	for (size_t x = 0; x < ROWS; ++x)
+	{
+		m_Grid[x][column].setFillColor(m_Colors[0]);
+	}
+}
+
+void Field::moveRowDown(size_t column, size_t numColumns)
+{
+	for (size_t x = 0; x < ROWS; ++x)
+	{
+		m_Grid[x][column+numColumns] = m_Grid[x][column];
+		m_Grid[x][column].setFillColor(m_Colors[0]);
+	}
+}
+
 void Field::setPosition(Vector2f pos)
 {
 	m_Frame.setPosition(pos.x + thicknessFrame, pos.y + thicknessFrame);

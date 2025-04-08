@@ -98,14 +98,15 @@ void Game::lockTet()
 		m_Field.getGrid()[tile.m_Rows][tile.m_Columns].setFillColor(m_CurrTet.getColor());
 	}
 	m_CurrTet = m_NextTet;
+	m_Field.clearFullRows();
 	m_CurrTet.setPosition(Vector2f(0.f, 0.f));// temp func
 	++m_CurrTetIndex;
 	if (m_CurrTetIndex + 1 == m_Tets.size())
 	{
 		m_CurrTetIndex = 0;
 		shuffleTets();
-		m_NextTet = m_Tets[m_CurrTetIndex];
 	}
+	m_NextTet = m_Tets[m_CurrTetIndex];
 }
 
 void Game::handleEvent(Event& event)

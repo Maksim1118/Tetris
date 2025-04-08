@@ -22,7 +22,12 @@ public:
 	bool isCollision(size_t row, size_t column);
 	bool isCellEmpty(size_t row, size_t column);
 	Grid & getGrid();
+	void clearFullRows();
 private:
+	bool isRowFull(size_t column);
+	void clearRow(size_t column);
+	void moveRowDown(size_t column, size_t numColumn);
+
 	void forEachGridCell(std::function<void(size_t, size_t)> func);
 	sf::RectangleShape m_Frame;
 
