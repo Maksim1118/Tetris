@@ -14,6 +14,7 @@ public:
 	Field();
 	void draw(sf::RenderTarget & target);
 	void setPosition(sf::Vector2f pos);
+	bool isCollision(size_t row, size_t column);
 private:
 	void forEachGridCell(std::function<void(size_t, size_t)> func);
 	sf::RectangleShape m_Frame;

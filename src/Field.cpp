@@ -29,6 +29,11 @@ void Field::forEachGridCell(function<void(size_t, size_t)> func)
 	}
 }
 
+bool Field::isCollision(size_t row, size_t column)
+{
+	return !(row >= 0 && row < ROWS && column >= 0 && column < COLUMNS);
+}
+
 void Field::setPosition(Vector2f pos)
 {
 	m_Frame.setPosition(pos.x + thicknessFrame, pos.y + thicknessFrame);

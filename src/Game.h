@@ -19,11 +19,13 @@ public:
 	void moveTetRight();
 	void moveTetDown();
 private:
+	bool isTetOutside();
 	void shuffleTets();
 	Field m_Field;
 	std::vector<Tet> m_Tets;
 	Tet m_CurrTet;
 	Tet m_NextTet;
+	unsigned int m_CurrTetIndex;
 
 	bool m_IsTetDrop;
 
