@@ -56,10 +56,10 @@ void Field::clearFullRows()
 			clearRow(y);
 			++completed;
 		}
-		/*else if(completed > 0)
+		else if (completed > 0)
 		{
-			moveRowDown(x, completed);
-		}*/
+			moveRowDown(y, completed);
+		}
 	}
 }
 
@@ -88,7 +88,7 @@ void Field::moveRowDown(size_t column, size_t numColumns)
 {
 	for (size_t x = 0; x < ROWS; ++x)
 	{
-		m_Grid[x][column+numColumns] = m_Grid[x][column];
+		m_Grid[x][column + numColumns].setFillColor(m_Grid[x][column].getFillColor());
 		m_Grid[x][column].setFillColor(m_Colors[0]);
 	}
 }
