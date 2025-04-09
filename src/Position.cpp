@@ -1,6 +1,6 @@
 #include "Position.h"
 
-Position::Position(size_t rows, size_t columns)
+Position::Position(int rows, int columns)
 	:m_Rows(rows), m_Columns(columns)
 {
 

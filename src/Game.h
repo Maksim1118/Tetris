@@ -22,8 +22,11 @@ private:
 	bool isTetOutside();
 	bool isTetFitsEmptyCell();
 
+	bool isUpLimit();
+
 	void rotateTet();
 	void lockTet();
+	void reset();
 
 	void shuffleTets();
 	Field m_Field;
@@ -33,6 +36,7 @@ private:
 	unsigned int m_CurrTetIndex;
 
 	bool m_IsTetDrop;
+	bool m_GameOver;
 
 	float m_ElapsedTime;
 	float m_DropInterval;

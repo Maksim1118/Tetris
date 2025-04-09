@@ -22,12 +22,13 @@ public:
 	void setPosition(sf::Vector2f pos);
 	void draw(sf::RenderTarget& target);
 	std::vector<Position> getCellPositions();
-	void move(size_t rows, size_t columns);
+	void move(int rows, int columns);
 	void rotate();
 	void undoRotate();
 	sf::Color getColor();
 protected:
 	size_t calcWidth(const std::vector<Position>& positions);
+	size_t calcHeight(const std::vector<Position>& positions);
 	void normalizePos(const std::vector<Position>& positions);
 	RotationState getRandomRotationState();
 
@@ -35,8 +36,8 @@ protected:
 	Figure m_Figure;
 	unsigned int m_ColorIndex;
 
-	size_t m_RowOffset;
-	size_t m_ColumnOffset;
+	int m_RowOffset;
+	int m_ColumnOffset;
 
 	sf::Vector2f m_OffsetWindow;
 

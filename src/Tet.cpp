@@ -4,15 +4,14 @@ using namespace sf;
 using namespace std;
 
 Tet::Tet()
-	: m_RowOffset(0), m_ColumnOffset(0), m_OffsetWindow(0.f, 0.f)
+	: m_RowOffset(0), m_ColumnOffset(0), m_OffsetWindow(startPos)
 {
 	m_Colors = getColors();
 }
 
 void Tet::setPosition(Vector2f pos)
 {
-	m_OffsetWindow.x = pos.x + thicknessFrame;
-	m_OffsetWindow.y = pos.y + thicknessFrame;
+	m_OffsetWindow = pos;
 }
 
 void Tet::draw(RenderTarget& target)
@@ -20,6 +19,8 @@ void Tet::draw(RenderTarget& target)
 	vector<Position> tiles = getCellPositions();
 	for (auto tile : tiles)
 	{
+		if (tile.m_Columns < 0)
+			continue;
 		RectangleShape cell;
 		cell.setSize(Vector2f((float)cellSize * 0.95f, (float)cellSize * 0.95f));
 		cell.setFillColor(m_Colors[m_ColorIndex]);
@@ -34,7 +35,7 @@ RotationState Tet::getRandomRotationState()
 	return static_cast<RotationState>(randIndex);
 }
 
-void Tet::move(size_t rows, size_t columns)
+void Tet::move(int rows, int columns)
 {
 	m_RowOffset += rows;
 	m_ColumnOffset += columns;
@@ -97,6 +98,18 @@ size_t Tet::calcWidth(const vector<Position>& positions)
 		if (pos.m_Rows > maxX) maxX = pos.m_Rows;
 	}
 	return (maxX - minX) + 1;
+}
+
+size_t Tet::calcHeight(const std::vector<Position>& positions)
+{
+	size_t minY = positions[0].m_Columns;
+	size_t maxY = positions[0].m_Columns;
+	for (const auto& pos : positions)
+	{
+		if (pos.m_Columns < minY) minY = pos.m_Columns;
+		if (pos.m_Columns > maxY) maxY = pos.m_Columns;
+	}
+	return (maxY - minY) + 1;
 }
 
 void Tet::normalizePos(const vector<Position>& positions)

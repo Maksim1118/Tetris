@@ -9,8 +9,10 @@ ITet::ITet()
 	m_Figure[RotationState::DOWN] = { Position(1,0), Position(1,1), Position(1,2), Position(1,3) };
 	m_State = getRandomRotationState();
 	size_t width = calcWidth(m_Figure[m_State]);
+	size_t height = calcHeight(m_Figure[m_State]);
 	normalizePos(m_Figure[m_State]);
-	move((ROWS - width) / 2, 0);
+	move((ROWS - width) / 2, -height);
+	
 }
 
 JTet::JTet()
@@ -22,8 +24,9 @@ JTet::JTet()
 	m_Figure[RotationState::DOWN] = { Position(1,2), Position(1,1), Position(1,0), Position(2,0) };
 	m_State =  getRandomRotationState();
 	size_t width = calcWidth(m_Figure[m_State]);
+	size_t height = calcHeight(m_Figure[m_State]);
 	normalizePos(m_Figure[m_State]);
-	move((ROWS - width)/2, 0);
+	move((ROWS - width)/2, -height);
 }
 
 LTet::LTet()
@@ -35,8 +38,9 @@ LTet::LTet()
 	m_Figure[RotationState::DOWN] = { Position(0,0), Position(1,0), Position(1,1), Position(1,2) };
 	m_State = getRandomRotationState();
 	size_t width = calcWidth(m_Figure[m_State]);
+	size_t height = calcHeight(m_Figure[m_State]);
 	normalizePos(m_Figure[m_State]);
-	move((ROWS - width) / 2, 0);
+	move((ROWS - width) / 2, -height);
 }
 
 OTet::OTet()
@@ -45,8 +49,9 @@ OTet::OTet()
 	m_Figure[RotationState::UP] = { Position(0,0), Position(0, 1), Position(1,0), Position(1,1) };
 	m_State = getRandomRotationState();
 	size_t width = calcWidth(m_Figure[m_State]);
+	size_t height = calcHeight(m_Figure[m_State]);
 	normalizePos(m_Figure[m_State]);
-	move((ROWS - width) / 2, 0);
+	move((ROWS - width) / 2, -height);
 }
 
 STet::STet()
@@ -58,8 +63,9 @@ STet::STet()
 	m_Figure[RotationState::DOWN] = { Position(0,2), Position(1, 2), Position(1,1), Position(2,1) };
 	m_State = getRandomRotationState();
 	size_t width = calcWidth(m_Figure[m_State]);
+	size_t height = calcHeight(m_Figure[m_State]);
 	normalizePos(m_Figure[m_State]);
-	move((ROWS - width) / 2, 0);
+	move((ROWS - width) / 2, -height);
 }
 
 TTet::TTet()
@@ -71,8 +77,9 @@ TTet::TTet()
 	m_Figure[RotationState::DOWN] = { Position(0,1), Position(1, 0), Position(1,1), Position(2,1) };
 	m_State = getRandomRotationState();
 	size_t width = calcWidth(m_Figure[m_State]);
+	size_t height = calcHeight(m_Figure[m_State]);
 	normalizePos(m_Figure[m_State]);
-	move((ROWS - width) / 2, 0);
+	move((ROWS - width) / 2, -height);
 }
 
 ZTet::ZTet()
@@ -84,6 +91,7 @@ ZTet::ZTet()
 	m_Figure[RotationState::DOWN] = { Position(0,1), Position(1, 1), Position(1,2), Position(2,2) };
 	m_State = getRandomRotationState();
 	size_t width = calcWidth(m_Figure[m_State]);
+	size_t height = calcHeight(m_Figure[m_State]);
 	normalizePos(m_Figure[m_State]);
-	move((ROWS - width) / 2, 0);
+	move((ROWS - width) / 2, -height);
 }

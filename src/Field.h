@@ -6,10 +6,10 @@
 
 #include "Colors.h"
 
-constexpr size_t ROWS = 10;
-constexpr size_t COLUMNS = 20;
+constexpr size_t ROWS = 12;
+constexpr size_t COLUMNS = 24;
 
-const float thicknessFrame = 5.f;
+const sf::Vector2f startPos = sf::Vector2f(520.f, 60.f);
 
 using Grid = std::array<std::array<sf::RectangleShape, COLUMNS>, ROWS>;
 
@@ -17,10 +17,11 @@ class Field
 {
 public:
 	Field();
+	void resetColorGrid();
 	void draw(sf::RenderTarget & target);
 	void setPosition(sf::Vector2f pos);
-	bool isCollision(size_t row, size_t column);
-	bool isCellEmpty(size_t row, size_t column);
+	bool isCollision(int row, int column);
+	bool isCellEmpty(int row, int column);
 	Grid & getGrid();
 	void clearFullRows();
 private:

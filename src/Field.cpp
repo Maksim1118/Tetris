@@ -8,14 +8,31 @@ Field::Field()
 {
 	m_Colors = getColors();
 
+	const float thicknessFrame = 5.f;
 	m_Frame.setSize(Vector2f((cellSize) * ROWS, (cellSize) * COLUMNS));
 	m_Frame.setFillColor(Color(200, 200, 200));
 	m_Frame.setOutlineThickness(thicknessFrame);
 	m_Frame.setOutlineColor(Color(170, 220, 20));
+	m_Frame.setPosition(startPos);
 
 	forEachGridCell([this](size_t x, size_t y)
 		{
 			m_Grid[x][y].setSize(Vector2f((float)cellSize * 0.95f, (float)cellSize * 0.95f));
+			m_Grid[x][y].setFillColor(m_Colors.at(0));
+			m_Grid[x][y].setPosition(
+				Vector2f
+				(
+					m_Frame.getPosition().x + x * cellSize + 1,
+					m_Frame.getPosition().y + y * cellSize + 1
+				)
+			);
+		});
+}
+
+void Field::resetColorGrid()
+{
+	forEachGridCell([this](size_t x, size_t y)
+		{
 			m_Grid[x][y].setFillColor(m_Colors.at(0));
 		});
 }
@@ -31,12 +48,12 @@ void Field::forEachGridCell(function<void(size_t, size_t)> func)
 	}
 }
 
-bool Field::isCollision(size_t row, size_t column)
+bool Field::isCollision(int row, int column)
 {
-	return !(row >= 0 && row < ROWS && column >= 0 && column < COLUMNS);
+	return !(row >= 0 && row < ROWS && column < (int)COLUMNS);
 }
 
-bool Field::isCellEmpty(size_t row, size_t column)
+bool Field::isCellEmpty(int row, int column)
 {
 	return m_Colors[0] == m_Grid[row][column].getFillColor();
 }
@@ -95,7 +112,7 @@ void Field::moveRowDown(size_t column, size_t numColumns)
 
 void Field::setPosition(Vector2f pos)
 {
-	m_Frame.setPosition(pos.x + thicknessFrame, pos.y + thicknessFrame);
+	m_Frame.setPosition(pos);
 	forEachGridCell([this](size_t x, size_t y)
 		{
 			m_Grid[x][y].setPosition(
