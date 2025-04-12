@@ -1,11 +1,15 @@
 #include "Game.h"
 #include <stdexcept>
 
+#include "ResourceManager.h"
+#include "Variables.h"
+
 using namespace sf;
 using namespace std;
 
 Game::Game()
-	:m_IsTetDrop(false), m_ElapsedTime(0.f), m_DropInterval(DROP_INTERVAL), m_CurrTetIndex(0), m_GameOver(false)
+	:m_IsTetDrop(false), m_ElapsedTime(0.f), 
+	m_DropInterval(DROP_INTERVAL), m_CurrTetIndex(0), m_GameOver(false), m_Score(0)
 {
 	m_Tets = { LTet(), JTet(), ITet(), OTet(), STet(), TTet(), ZTet() };
 	shuffleTets();
@@ -16,6 +20,7 @@ Game::Game()
 	}
 	m_CurrTet = m_Tets.at(m_CurrTetIndex);
 	m_NextTet = m_Tets.at(m_CurrTetIndex+1);
+	nextTetDataUpdate();
 }
 
 void Game::shuffleTets()
@@ -30,7 +35,7 @@ void Game::shuffleTets()
 void Game::moveTetLeft()
 {
 	m_CurrTet.move(-1, 0);
-	if (isTetOutside())
+	if (isTetOutside() || !isTetFitsEmptyCell())
 	{
 		m_CurrTet.move(1, 0);
 	}
@@ -47,7 +52,7 @@ void Game::moveTetLeft()
 void Game::moveTetRight()
 {
 	m_CurrTet.move(1, 0);
-	if (isTetOutside())
+	if (isTetOutside() || !isTetFitsEmptyCell())
 	{
 		m_CurrTet.move(-1, 0);
 	}
@@ -78,6 +83,11 @@ void Game::moveTetDown()
 			lockTet();
 		}
 	}*/
+}
+
+int Game::getScore()
+{
+	return m_Score;
 }
 
 bool Game::isTetOutside()
@@ -114,12 +124,23 @@ bool Game::isUpLimit()
 	return false;
 }
 
+void Game::nextTetDataUpdate()
+{
+	m_NextTet.setScale(1.8f);
+	Vector2f pos =
+	{
+		m_NextTet.getZeroPos().x + rectNextTetPos.x + (rectNextTetSize.x - m_NextTet.getWidth()) / 2.f,
+		m_NextTet.getZeroPos().y + rectNextTetPos.y + (rectNextTetSize.y - m_NextTet.getHeight()) / 2.f
+	};
+	m_NextTet.setPosition(pos);
+}
+
 void Game::rotateTet()
 {
 	if (!m_GameOver)
 	{
 		m_CurrTet.rotate();
-		if (isTetOutside())
+		if (isTetOutside() || !isTetFitsEmptyCell())
 		{
 			m_CurrTet.undoRotate();
 		}
@@ -141,15 +162,19 @@ void Game::lockTet()
 		m_GameOver = true;
 		return;
 	}
-	m_CurrTet = m_NextTet;
-	m_Field.clearFullRows();
+	int countRowsCleared = m_Field.clearFullRows();
+	updateScore(countRowsCleared, 0);
+
 	++m_CurrTetIndex;
-	if (m_CurrTetIndex == m_Tets.size())
+	m_CurrTet = m_Tets[m_CurrTetIndex % m_Tets.size()];
+	if (m_CurrTetIndex + 1 >= m_Tets.size())
 	{
-		m_CurrTetIndex = 0;
 		shuffleTets();
+		m_CurrTetIndex = 0;
 	}
-	m_NextTet = m_Tets[m_CurrTetIndex];
+	m_NextTet = m_Tets[(m_CurrTetIndex + 1) % m_Tets.size()];
+	nextTetDataUpdate();
+
 }
 
 void Game::reset()
@@ -159,6 +184,45 @@ void Game::reset()
 	m_CurrTetIndex = 0;
 	m_CurrTet = m_Tets[m_CurrTetIndex];
 	m_NextTet = m_Tets[m_CurrTetIndex + 1];
+	m_Score = 0;
+}
+
+void Game::updateScore(int countLinesCleared, int moveDownPoints)
+{
+	switch (countLinesCleared)
+	{
+		case 1:
+		{
+			m_Score += 25;
+			break;
+		}
+		case 2:
+		{
+			m_Score += 50;
+			break;
+		}
+		case 3:
+		{
+			m_Score += 100;
+			break;
+		}
+		default:
+			break;
+	}
+	m_Score += moveDownPoints;
+}
+
+void Game::drawGameOver(RenderTarget& target)
+{
+	Font font = ResourceManager::getInstance().getFont(FontName::GAMEOVER);
+	sf::Text gameOverText;
+	gameOverText.setFont(font);
+	gameOverText.setString("Game Over");
+	gameOverText.setCharacterSize(80);
+	gameOverText.setFillColor(sf::Color::Red);
+	gameOverText.setPosition(200.f, 200.f);
+
+	target.draw(gameOverText);
 }
 
 void Game::handleEvent(Event& event)
@@ -183,6 +247,7 @@ void Game::handleEvent(Event& event)
 			case Keyboard::Down:
 			{
 				m_IsTetDrop = true;
+				updateScore(0, 1);
 				break;
 			}
 			case Keyboard::Up:
@@ -227,7 +292,8 @@ void Game::timeElapsed(float diff)
 void Game::draw(RenderTarget& target)
 {
 	m_Field.draw(target);
-	m_CurrTet.draw(target);
+	m_CurrTet.draw(target); 
+	m_NextTet.draw(target, true);
 }
 
 

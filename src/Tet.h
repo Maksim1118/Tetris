@@ -19,27 +19,37 @@ class Tet
 {
 public:
 	Tet();
-	void setPosition(sf::Vector2f pos);
-	void draw(sf::RenderTarget& target);
+	void draw(sf::RenderTarget& target, bool isStatic = false);
 	std::vector<Position> getCellPositions();
 	void move(int rows, int columns);
 	void rotate();
 	void undoRotate();
 	sf::Color getColor();
+	sf::Vector2f getZeroPos();
+	void setScale(float scale);
+	void setPosition(sf::Vector2f pos);
+	float getWidth();
+	float getHeight();
 protected:
-	size_t calcWidth(const std::vector<Position>& positions);
-	size_t calcHeight(const std::vector<Position>& positions);
-	void normalizePos(const std::vector<Position>& positions);
+	int calcWidth();
+	int calcHeight();
+	void normalizePos();
 	RotationState getRandomRotationState();
 
 	RotationState m_State;
 	Figure m_Figure;
 	unsigned int m_ColorIndex;
 
+	sf::Vector2f m_Size;
+	float m_Scale;
+
 	int m_RowOffset;
 	int m_ColumnOffset;
 
-	sf::Vector2f m_OffsetWindow;
+	float m_OffsetFromFieldX;
+	float m_OffsetFromFieldY;
+
+	sf::Vector2f m_Pos;
 
 	Colors m_Colors;
 };

@@ -2,23 +2,23 @@
 using namespace sf;
 using namespace std;
 
-size_t cellSize = 40;
+int cellSize = 40;
 
 Field::Field()
 {
-	m_Colors = getColors();
+	m_Colors = getTetColors();
 
 	const float thicknessFrame = 5.f;
 	m_Frame.setSize(Vector2f((cellSize) * ROWS, (cellSize) * COLUMNS));
-	m_Frame.setFillColor(Color(200, 200, 200));
+	m_Frame.setFillColor(lightGray);
 	m_Frame.setOutlineThickness(thicknessFrame);
-	m_Frame.setOutlineColor(Color(170, 220, 20));
+	m_Frame.setOutlineColor(yellow_green);
 	m_Frame.setPosition(startPos);
 
 	forEachGridCell([this](size_t x, size_t y)
 		{
 			m_Grid[x][y].setSize(Vector2f((float)cellSize * 0.95f, (float)cellSize * 0.95f));
-			m_Grid[x][y].setFillColor(m_Colors.at(0));
+			m_Grid[x][y].setFillColor(black);
 			m_Grid[x][y].setPosition(
 				Vector2f
 				(
@@ -33,7 +33,7 @@ void Field::resetColorGrid()
 {
 	forEachGridCell([this](size_t x, size_t y)
 		{
-			m_Grid[x][y].setFillColor(m_Colors.at(0));
+			m_Grid[x][y].setFillColor(black);
 		});
 }
 
@@ -55,7 +55,7 @@ bool Field::isCollision(int row, int column)
 
 bool Field::isCellEmpty(int row, int column)
 {
-	return m_Colors[0] == m_Grid[row][column].getFillColor();
+	return m_Grid[row][column].getFillColor() == black;
 }
 
 Grid& Field::getGrid()
@@ -63,7 +63,7 @@ Grid& Field::getGrid()
 	return m_Grid;
 }
 
-void Field::clearFullRows()
+int Field::clearFullRows()
 {
 	size_t completed = 0;
 	for (int y = COLUMNS - 1; y >= 0; --y)
@@ -78,6 +78,7 @@ void Field::clearFullRows()
 			moveRowDown(y, completed);
 		}
 	}
+	return completed;
 }
 
 bool Field::isRowFull(size_t column)
@@ -85,7 +86,7 @@ bool Field::isRowFull(size_t column)
 	for (size_t x = 0; x < ROWS; ++x)
 	{
 		cout << x << "  " << column << endl;
-		if (m_Grid[x][column].getFillColor() == m_Colors[0])
+		if (m_Grid[x][column].getFillColor() == black)
 		{
 			return false;
 		}
@@ -97,7 +98,7 @@ void Field::clearRow(size_t column)
 {
 	for (size_t x = 0; x < ROWS; ++x)
 	{
-		m_Grid[x][column].setFillColor(m_Colors[0]);
+		m_Grid[x][column].setFillColor(black);
 	}
 }
 
@@ -106,7 +107,7 @@ void Field::moveRowDown(size_t column, size_t numColumns)
 	for (size_t x = 0; x < ROWS; ++x)
 	{
 		m_Grid[x][column + numColumns].setFillColor(m_Grid[x][column].getFillColor());
-		m_Grid[x][column].setFillColor(m_Colors[0]);
+		m_Grid[x][column].setFillColor(black);
 	}
 }
 

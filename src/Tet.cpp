@@ -4,27 +4,25 @@ using namespace sf;
 using namespace std;
 
 Tet::Tet()
-	: m_RowOffset(0), m_ColumnOffset(0), m_OffsetWindow(startPos)
+	: m_RowOffset(0), m_ColumnOffset(0), m_OffsetFromFieldX(0), m_OffsetFromFieldY(0), m_Scale(1.f), m_Pos(startPos)
 {
-	m_Colors = getColors();
+	m_Colors = getTetColors();
 }
 
-void Tet::setPosition(Vector2f pos)
-{
-	m_OffsetWindow = pos;
-}
-
-void Tet::draw(RenderTarget& target)
+void Tet::draw(RenderTarget& target, bool isStatic)
 {
 	vector<Position> tiles = getCellPositions();
 	for (auto tile : tiles)
 	{
-		if (tile.m_Columns < 0)
-			continue;
+		if (!isStatic)
+		{
+			if (tile.m_Columns < 0)
+				continue;
+		}
 		RectangleShape cell;
-		cell.setSize(Vector2f((float)cellSize * 0.95f, (float)cellSize * 0.95f));
+		cell.setSize(Vector2f((float)cellSize * m_Scale * 0.95f, (float)cellSize * m_Scale * 0.95f));
 		cell.setFillColor(m_Colors[m_ColorIndex]);
-		cell.setPosition(m_OffsetWindow.x + tile.m_Rows * cellSize + 1, m_OffsetWindow.y + tile.m_Columns * cellSize + 1);
+		cell.setPosition(m_Pos.x + (float)tile.m_Rows * (float)cellSize * m_Scale + 1, m_Pos.y + (float)tile.m_Columns * (float)cellSize * m_Scale + 1);
 		target.draw(cell);
 	}
 }
@@ -88,10 +86,37 @@ Color Tet::getColor()
 	return m_Colors[m_ColorIndex];
 }
 
-size_t Tet::calcWidth(const vector<Position>& positions)
+Vector2f Tet::getZeroPos()
 {
-	size_t minX = positions[0].m_Rows;
-	size_t maxX = positions[0].m_Rows;
+	return { -m_OffsetFromFieldX * (float)cellSize * m_Scale, -m_OffsetFromFieldY * (float)cellSize * m_Scale};
+}
+
+void Tet::setScale(float scale)
+{
+	m_Scale = scale;
+	m_Size *= m_Scale;
+}
+
+void Tet::setPosition(Vector2f pos)
+{
+	m_Pos = pos;
+}
+
+float Tet::getWidth()
+{
+	return m_Size.x;
+}
+
+float Tet::getHeight()
+{
+	return m_Size.y;
+}
+
+int Tet::calcWidth()
+{
+	vector<Position> positions = m_Figure[m_State];
+	int minX = positions[0].m_Rows;
+	int maxX = positions[0].m_Rows;
 	for (const auto& pos : positions)
 	{
 		if (pos.m_Rows < minX) minX = pos.m_Rows;
@@ -100,10 +125,11 @@ size_t Tet::calcWidth(const vector<Position>& positions)
 	return (maxX - minX) + 1;
 }
 
-size_t Tet::calcHeight(const std::vector<Position>& positions)
+int Tet::calcHeight()
 {
-	size_t minY = positions[0].m_Columns;
-	size_t maxY = positions[0].m_Columns;
+	vector<Position> positions = m_Figure[m_State];
+	int minY = positions[0].m_Columns;
+	int maxY = positions[0].m_Columns;
 	for (const auto& pos : positions)
 	{
 		if (pos.m_Columns < minY) minY = pos.m_Columns;
@@ -112,10 +138,11 @@ size_t Tet::calcHeight(const std::vector<Position>& positions)
 	return (maxY - minY) + 1;
 }
 
-void Tet::normalizePos(const vector<Position>& positions)
+void Tet::normalizePos()
 {
-	size_t minX = positions[0].m_Rows;
-	size_t minY = positions[0].m_Columns;
+	vector<Position> positions = m_Figure[m_State];
+	int minX = positions[0].m_Rows;
+	int minY = positions[0].m_Columns;
 	for (size_t i = 1; i < positions.size(); ++i)
 	{
 		if (positions[i].m_Rows < minX) minX = positions[i].m_Rows;
@@ -123,6 +150,7 @@ void Tet::normalizePos(const vector<Position>& positions)
 	}
 	move(-minX, -minY);
 }
+
 
 vector<Position> Tet::getCellPositions()
 {

@@ -6,8 +6,8 @@
 
 #include "Colors.h"
 
-constexpr size_t ROWS = 12;
-constexpr size_t COLUMNS = 24;
+constexpr int ROWS = 12;
+constexpr int COLUMNS = 24;
 
 const sf::Vector2f startPos = sf::Vector2f(520.f, 60.f);
 
@@ -23,7 +23,7 @@ public:
 	bool isCollision(int row, int column);
 	bool isCellEmpty(int row, int column);
 	Grid & getGrid();
-	void clearFullRows();
+	int clearFullRows();
 private:
 	bool isRowFull(size_t column);
 	void clearRow(size_t column);
@@ -36,4 +36,4 @@ private:
 	Colors m_Colors;
 };
 
-extern size_t cellSize;
+extern int cellSize;

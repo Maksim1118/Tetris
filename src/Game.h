@@ -4,7 +4,6 @@
 #include "Field.h"
 #include "Tets.h"
 
-constexpr size_t DROP_SPEED = 3;
 constexpr float DROP_INTERVAL = 0.6f;
 constexpr float DROP_INTERVAL_MIN = 0.03f;
 
@@ -18,15 +17,20 @@ public:
 	void moveTetLeft();
 	void moveTetRight();
 	void moveTetDown();
+	int getScore();
 private:
 	bool isTetOutside();
 	bool isTetFitsEmptyCell();
 
 	bool isUpLimit();
 
+	void nextTetDataUpdate();
+
 	void rotateTet();
 	void lockTet();
 	void reset();
+	void updateScore(int countLinesCleared, int moveDownPoints);
+	void drawGameOver(sf::RenderTarget& target);
 
 	void shuffleTets();
 	Field m_Field;
@@ -37,6 +41,8 @@ private:
 
 	bool m_IsTetDrop;
 	bool m_GameOver;
+
+	int m_Score;
 
 	float m_ElapsedTime;
 	float m_DropInterval;

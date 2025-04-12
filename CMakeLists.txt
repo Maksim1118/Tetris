@@ -22,7 +22,7 @@ src/Tet.cpp
 src/Colors.cpp
 src/Position.cpp
 src/Tets.cpp
-src/Game.cpp)
+src/Game.cpp "src/ResourceManager.h" "src/ResourceManager.cpp" "src/RoundedRectangle.h" "src/RoundedRectangle.cpp" "src/Variables.h" "src/Variables.cpp")
 
 target_link_libraries(${PROJECT_NAME} PRIVATE sfml-graphics sfml-network sfml-audio)
 target_compile_features(${PROJECT_NAME} PRIVATE cxx_std_17)
