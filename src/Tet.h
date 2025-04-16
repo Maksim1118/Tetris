@@ -28,8 +28,8 @@ public:
 	sf::Vector2f getZeroPos();
 	void setScale(float scale);
 	void setPosition(sf::Vector2f pos);
-	float getWidth();
-	float getHeight();
+	float getWidth() const;
+	float getHeight() const;
 protected:
 	int calcWidth();
 	int calcHeight();

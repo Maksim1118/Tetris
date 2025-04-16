@@ -12,7 +12,7 @@ Tet::Tet()
 void Tet::draw(RenderTarget& target, bool isStatic)
 {
 	vector<Position> tiles = getCellPositions();
-	for (auto tile : tiles)
+	for (const auto &tile : tiles)
 	{
 		if (!isStatic)
 		{
@@ -102,12 +102,12 @@ void Tet::setPosition(Vector2f pos)
 	m_Pos = pos;
 }
 
-float Tet::getWidth()
+float Tet::getWidth() const
 {
 	return m_Size.x;
 }
 
-float Tet::getHeight()
+float Tet::getHeight() const
 {
 	return m_Size.y;
 }

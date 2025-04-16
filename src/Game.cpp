@@ -4,8 +4,13 @@
 using namespace sf;
 using namespace std;
 
+const float DROP_INTERVAL_DECREMENT = 0.001f;
+const float DECREMENT_THRESHOLD = 5.f;
+float DROP_INTERVAL = 0.6f;
+float DROP_INTERVAL_MIN = 0.03f;
+
 Game::Game()
-	:m_IsTetDrop(false), m_ElapsedTime(0.f), 
+	:m_IsTetDrop(false), m_ElapsedMoveTime(0.f), m_ElapsedTimeChangeInterval(0.f),
 	m_DropInterval(DROP_INTERVAL), m_CurrTetIndex(0), m_IsGameOver(false), m_Score(0), 
 	m_State(GameState::Playing), m_TetIsLock(false), m_GamePause(false), m_SoundOff(false)
 {
@@ -43,14 +48,6 @@ void Game::moveTetLeft()
 		if (!m_SoundOff)
 			m_MoveTetMusic->play();
 	}
-	/*if (!m_GameOver)
-	{
-		m_CurrTet.move(-1, 0);
-		if (isTetOutside())
-		{
-			m_CurrTet.move(1, 0);
-		}
-	}*/
 }
 
 void Game::moveTetRight()
@@ -65,14 +62,6 @@ void Game::moveTetRight()
 		if (!m_SoundOff)
 			m_MoveTetMusic->play();
 	}
-	/*if (!m_GameOver)
-	{
-		m_CurrTet.move(1, 0);
-		if (isTetOutside())
-		{
-			m_CurrTet.move(-1, 0);
-		}
-	}*/
 }
 
 void Game::moveTetDown()
@@ -83,18 +72,9 @@ void Game::moveTetDown()
 		m_CurrTet.move(0, -1);
 		m_TetIsLock = true;
 	}
-	/*if (!m_GameOver)
-	{
-		m_CurrTet.move(0, 1);
-		if (isTetOutside() || !isTetFitsEmptyCell())
-		{
-			m_CurrTet.move(0, -1);
-			lockTet();
-		}
-	}*/
 }
 
-int Game::getScore()
+int Game::getScore() const
 {
 	return m_Score;
 }
@@ -145,18 +125,23 @@ bool Game::isUpLimit()
 
 void Game::ciclingMove(float diff)
 {
-	m_ElapsedTime += diff;
+	m_ElapsedMoveTime += diff;
 
 	float currentDropInterval = m_IsTetDrop ? DROP_INTERVAL_MIN : m_DropInterval;
-	if (m_ElapsedTime >= currentDropInterval)
+	if (m_ElapsedMoveTime >= currentDropInterval)
 	{
 		moveTetDown();
-		m_ElapsedTime = 0.f;
-		if (currentDropInterval > DROP_INTERVAL_MIN)
+		m_ElapsedMoveTime = 0.f;
+		if (!m_IsTetDrop)
 		{
-			m_DropInterval -= 0.002f;
-			if (m_DropInterval < DROP_INTERVAL_MIN)
-				m_DropInterval = DROP_INTERVAL_MIN;
+			m_ElapsedTimeChangeInterval += diff;
+			if (m_ElapsedTimeChangeInterval > DECREMENT_THRESHOLD)
+			{
+				m_ElapsedTimeChangeInterval = 0.f;
+				m_DropInterval -= DROP_INTERVAL_DECREMENT;
+				if (m_DropInterval < DROP_INTERVAL_MIN)
+					m_DropInterval = DROP_INTERVAL_MIN;
+			}
 		}
 	}
 }
@@ -241,7 +226,7 @@ void Game::soundOn()
 	m_SoundOff = false;
 }
 
-bool Game::isGameOver()
+bool Game::isGameOver() const
 {
 	return m_IsGameOver;
 }
@@ -317,57 +302,6 @@ void Game::musicsHandleEvent()
 	{
 		m_BackGroundMusic->setVolume(backGroundMusicVolume);
 	}
-	/*if (m_DropTetMusic->getStatus() == Sound::Playing)
-	{
-		isAnySoundPlaying = true;
-		m_BackGroundMusic->setVolume(backGroundMusicVolume * 0.3f);
-	}
-	else if (m_DropTetMusic->getStatus() == Sound::Paused)
-	{
-		m_DropTetMusic->play();
-	}
-
-	if (m_GameOverMusic->getStatus() == Sound::Playing)
-	{
-		isAnySoundPlaying = true;
-		m_BackGroundMusic->setVolume(backGroundMusicVolume * 0.1f);
-	}
-	else if (m_GameOverMusic->getStatus() == Sound::Paused)
-	{
-		m_GameOverMusic->play();
-	}
-
-
-	if (m_MoveTetMusic->getStatus() == Sound::Playing)
-	{
-		isAnySoundPlaying = true;
-		m_BackGroundMusic->setVolume(backGroundMusicVolume * 0.9f);
-	}
-	else if (m_MoveTetMusic->getStatus() == Sound::Paused)
-	{
-		m_MoveTetMusic->play();
-	}
-
-
-	if (m_RotateTetMusic->getStatus() == Sound::Playing)
-	{
-		isAnySoundPlaying = true;
-		m_BackGroundMusic->setVolume(backGroundMusicVolume * 0.9f);
-	}
-	else if (m_RotateTetMusic->getStatus() == Sound::Paused)
-	{
-		m_RotateTetMusic->play();
-	}
-
-	if (m_ClearLineMusic->getStatus() == Sound::Playing)
-	{
-		isAnySoundPlaying = true;
-		m_BackGroundMusic->setVolume(backGroundMusicVolume * 0.5f);
-	}
-	else if (m_ClearLineMusic->getStatus() == Sound::Paused)
-	{
-		m_ClearLineMusic->play();
-	}*/
 }
 
 

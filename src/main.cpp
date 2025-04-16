@@ -53,8 +53,8 @@ int main()
     Text gameOverText;
     gameOverText.setFont(ResourceManager::getInstance().getFont(FontName::GAMEOVER));
     gameOverText.setString("Game Over");
-    gameOverText.setCharacterSize(80);
-    gameOverText.setFillColor(sf::Color::Red);
+    gameOverText.setCharacterSize(100);
+    gameOverText.setFillColor(maroon);
 
     RoundedRectangle roundRectNextTet;
     roundRectNextTet.setSize(rectNextTetSize);

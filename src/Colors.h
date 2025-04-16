@@ -15,6 +15,7 @@ extern const sf::Color lightGray;
 extern const sf::Color yellow_green;
 extern const sf::Color denimBlue;
 extern const sf::Color darkGreen;
+extern const sf::Color maroon;
 
 using Colors = std::array<sf::Color, 7>;
 

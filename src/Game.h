@@ -6,9 +6,6 @@
 #include "ResourceManager.h"
 #include "Variables.h"
 
-constexpr float DROP_INTERVAL = 0.6f;
-constexpr float DROP_INTERVAL_MIN = 0.03f;
-
 enum class GameState
 {
 	Playing, 
@@ -28,13 +25,13 @@ public:
 	void moveTetLeft();
 	void moveTetRight();
 	void moveTetDown();
-	int getScore();
+	int getScore() const;
 	void pause();
 	void play();
 	void restart();
 	void soundOff();
 	void soundOn();
-	bool isGameOver();
+	bool isGameOver() const;
 private:
 	bool isTetOutside();
 	bool isTetFitsEmptyCell();
@@ -84,6 +81,7 @@ private:
 
 	int m_Score;
 
-	float m_ElapsedTime;
+	float m_ElapsedMoveTime;
+	float m_ElapsedTimeChangeInterval;
 	float m_DropInterval;
 };

@@ -33,9 +33,9 @@ public:
 	Grid & getGrid();
 	void clearFullRows(float diff);
 	void setState(FieldClearState state);
-	FieldClearState getState();
-	bool isAllRowsCleared();
-	int getNumRowsCompleted();
+	FieldClearState getState() const;
+	bool isAllRowsCleared() const;
+	int getNumRowsCompleted() const;
 	void reset();
 	void update();
 private:

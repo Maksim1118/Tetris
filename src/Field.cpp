@@ -113,17 +113,17 @@ void Field::setState(FieldClearState state)
 	m_ClearState = state;
 }
 
-FieldClearState Field::getState()
+FieldClearState Field::getState() const
 {
 	return m_ClearState;
 }
 
-bool Field::isAllRowsCleared()
+bool Field::isAllRowsCleared() const
 {
 	return m_CurrRow <= 0;
 }
 
-int Field::getNumRowsCompleted()
+int Field::getNumRowsCompleted() const
 {
 	return m_ClearRowsOffset;
 }
