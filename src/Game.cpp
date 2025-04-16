@@ -9,7 +9,7 @@ using namespace std;
 
 Game::Game()
 	:m_IsTetDrop(false), m_ElapsedTime(0.f), 
-	m_DropInterval(DROP_INTERVAL), m_CurrTetIndex(0), m_GameOver(false), m_Score(0)
+	m_DropInterval(DROP_INTERVAL), m_CurrTetIndex(0), m_IsGameOver(false), m_Score(0), m_State(GameState::Playing), m_TetIsLock(false)
 {
 	m_Tets = { LTet(), JTet(), ITet(), OTet(), STet(), TTet(), ZTet() };
 	shuffleTets();
@@ -72,7 +72,7 @@ void Game::moveTetDown()
 	if (isTetOutside() || !isTetFitsEmptyCell())
 	{
 		m_CurrTet.move(0, -1);
-		lockTet();
+		m_TetIsLock = true;
 	}
 	/*if (!m_GameOver)
 	{
@@ -124,6 +124,38 @@ bool Game::isUpLimit()
 	return false;
 }
 
+void Game::playing(float diff)
+{
+	m_ElapsedTime += diff;
+
+	float currentDropInterval = m_IsTetDrop ? DROP_INTERVAL_MIN : m_DropInterval;
+	if (m_ElapsedTime >= currentDropInterval)
+	{
+		moveTetDown();
+		m_ElapsedTime = 0.f;
+		if (currentDropInterval > DROP_INTERVAL_MIN)
+		{
+			m_DropInterval -= 0.002f;
+			if (m_DropInterval < DROP_INTERVAL_MIN)
+				m_DropInterval = DROP_INTERVAL_MIN;
+		}
+	}
+}
+
+void Game::updateIndex()
+{
+	++m_CurrTetIndex;
+	m_CurrTet = m_Tets[m_CurrTetIndex % m_Tets.size()];
+	if (m_CurrTetIndex + 1 >= m_Tets.size())
+	{
+		shuffleTets();
+		m_CurrTetIndex = 0;
+	}
+	m_NextTet = m_Tets[(m_CurrTetIndex + 1) % m_Tets.size()];
+	nextTetDataUpdate();
+}
+
+
 void Game::nextTetDataUpdate()
 {
 	m_NextTet.setScale(1.8f);
@@ -137,13 +169,10 @@ void Game::nextTetDataUpdate()
 
 void Game::rotateTet()
 {
-	if (!m_GameOver)
+	m_CurrTet.rotate();
+	if (isTetOutside() || !isTetFitsEmptyCell())
 	{
-		m_CurrTet.rotate();
-		if (isTetOutside() || !isTetFitsEmptyCell())
-		{
-			m_CurrTet.undoRotate();
-		}
+		m_CurrTet.undoRotate();
 	}
 }
 
@@ -157,24 +186,6 @@ void Game::lockTet()
 			continue;
 		m_Field.getGrid()[tile.m_Rows][tile.m_Columns].setFillColor(m_CurrTet.getColor());
 	}
-	if (isUpLimit())
-	{
-		m_GameOver = true;
-		return;
-	}
-	int countRowsCleared = m_Field.clearFullRows();
-	updateScore(countRowsCleared, 0);
-
-	++m_CurrTetIndex;
-	m_CurrTet = m_Tets[m_CurrTetIndex % m_Tets.size()];
-	if (m_CurrTetIndex + 1 >= m_Tets.size())
-	{
-		shuffleTets();
-		m_CurrTetIndex = 0;
-	}
-	m_NextTet = m_Tets[(m_CurrTetIndex + 1) % m_Tets.size()];
-	nextTetDataUpdate();
-
 }
 
 void Game::reset()
@@ -228,7 +239,7 @@ void Game::drawGameOver(RenderTarget& target)
 void Game::handleEvent(Event& event)
 {
 		
-	if (event.type == Event::KeyPressed && !m_GameOver)
+	if (event.type == Event::KeyPressed && m_State == GameState::Playing)
 	{
 		switch (event.key.code)
 		{
@@ -257,34 +268,59 @@ void Game::handleEvent(Event& event)
 			}
 		}
 	}
-	if (event.type == Event::KeyPressed && m_GameOver)
+	if (event.type == Event::KeyPressed && m_State == GameState::GameOver)
 	{
 		if (event.key.code == Keyboard::Enter)
 		{
-			if (m_GameOver)
+			/*if (m_GameOver)
 			{
 				m_GameOver = false;
 				reset();
-			}
+			}*/
 		}
 	}
 }
 
 void Game::timeElapsed(float diff)
 {
-	if (m_GameOver) return;
-	m_ElapsedTime += diff;
-
-	float currentDropInterval = m_IsTetDrop ? DROP_INTERVAL_MIN : m_DropInterval;
-	if (m_ElapsedTime >= currentDropInterval)
+	switch (m_State)
 	{
-		moveTetDown();
-		m_ElapsedTime = 0.f;
-		if (currentDropInterval > DROP_INTERVAL_MIN)
+		case GameState::Playing:
 		{
-			m_DropInterval -= 0.002f;
-			if (m_DropInterval < DROP_INTERVAL_MIN)
-				m_DropInterval = DROP_INTERVAL_MIN;
+			playing(diff);
+			if (m_TetIsLock)
+			{
+				lockTet();
+				m_State = GameState::ClearingRow;
+			}
+			break;
+		}
+		case GameState::ClearingRow:
+		{
+			if (isUpLimit())
+			{
+				m_State = GameState::GameOver;
+				break;
+			}
+			/*m_Field.setState(FieldClearState::searchFullRow);*/
+			m_Field.clearFullRows(diff);
+			if(m_Field.isAllRowsCleared())
+				m_State = GameState::UpdateElements;
+			break;
+		}
+		case GameState::UpdateElements:
+		{
+			m_Field.setState(FieldClearState::searchFullRow);
+			updateScore(m_Field.getNumRowsCompleted(), 0);
+			updateIndex();
+			m_Field.updateNumRows();
+			m_TetIsLock = false;
+			m_State = GameState::Playing;
+			break;
+		}
+		case GameState::GameOver:
+		{
+			break;
 		}
 	}
 }
@@ -292,7 +328,8 @@ void Game::timeElapsed(float diff)
 void Game::draw(RenderTarget& target)
 {
 	m_Field.draw(target);
-	m_CurrTet.draw(target); 
+	if(!m_TetIsLock)
+		m_CurrTet.draw(target); 
 	m_NextTet.draw(target, true);
 }
 

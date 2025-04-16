@@ -2,6 +2,7 @@
 #include <SFML/Graphics.hpp>
 #include <array>
 
+extern const sf::Color white;
 extern const sf::Color black;
 extern const sf::Color orange;
 extern const sf::Color green;

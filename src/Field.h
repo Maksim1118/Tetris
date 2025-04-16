@@ -3,6 +3,7 @@
 #include <iostream>
 #include <functional>
 #include <array>
+#include <vector>
 
 #include "Colors.h"
 
@@ -12,6 +13,14 @@ constexpr int COLUMNS = 24;
 const sf::Vector2f startPos = sf::Vector2f(520.f, 60.f);
 
 using Grid = std::array<std::array<sf::RectangleShape, COLUMNS>, ROWS>;
+
+enum class FieldClearState
+{
+	searchFullRow,
+	animation,
+	clear,
+	moveDown
+};
 
 class Field
 {
@@ -23,17 +32,31 @@ public:
 	bool isCollision(int row, int column);
 	bool isCellEmpty(int row, int column);
 	Grid & getGrid();
-	int clearFullRows();
+	void clearFullRows(float diff);
+	void setState(FieldClearState state);
+	bool isAllRowsCleared();
+	int getNumRowsCompleted();
+	void updateNumRows();
 private:
-	bool isRowFull(size_t column);
-	void clearRow(size_t column);
-	void moveRowDown(size_t column, size_t numColumn);
+	void drawClearAnimation(sf::RenderTarget & target);
+	void clearRowsAnimation(float diff);
+	bool isRowFull();
+	void clearRow();
+	void moveRowDown();
 
 	void forEachGridCell(std::function<void(size_t, size_t)> func);
 	sf::RectangleShape m_Frame;
 
 	Grid m_Grid;
 	Colors m_Colors;
+
+	FieldClearState m_ClearState;
+	float m_ElapsedAnimationTime;
+
+	std::vector<int> m_RowsAnimationAndClear;
+	bool m_IsAnimationEnd;
+	int m_CurrRow;
+	int m_ClearRowsOffset;
 };
 
 extern int cellSize;

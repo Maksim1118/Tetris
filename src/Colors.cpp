@@ -14,6 +14,7 @@ const Color lightGray = { 200,200,200 };
 const Color yellow_green = { 154, 205, 50 };
 const Color denimBlue = { 21, 96, 189 };
 const Color darkGreen = { 0, 105, 62 };
+const Color white = { 255,255,255 };
 
 const Colors getTetColors()
 {

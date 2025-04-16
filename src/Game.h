@@ -7,6 +7,14 @@
 constexpr float DROP_INTERVAL = 0.6f;
 constexpr float DROP_INTERVAL_MIN = 0.03f;
 
+enum class GameState
+{
+	Playing, 
+	ClearingRow,
+	UpdateElements,
+	GameOver
+};
+
 class Game
 {
 public:
@@ -24,6 +32,9 @@ private:
 
 	bool isUpLimit();
 
+	void playing(float diff);
+	void updateIndex();
+
 	void nextTetDataUpdate();
 
 	void rotateTet();
@@ -39,8 +50,12 @@ private:
 	Tet m_NextTet;
 	unsigned int m_CurrTetIndex;
 
+	GameState m_State;
+
 	bool m_IsTetDrop;
-	bool m_GameOver;
+	bool m_IsGameOver;
+
+	bool m_TetIsLock;
 
 	int m_Score;
 

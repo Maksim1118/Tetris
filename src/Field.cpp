@@ -3,8 +3,10 @@ using namespace sf;
 using namespace std;
 
 int cellSize = 40;
+const float animationDur = 3.f;
 
 Field::Field()
+	:m_ElapsedAnimationTime(0.f), m_ClearState(FieldClearState::searchFullRow),m_IsAnimationEnd(false), m_ClearRowsOffset(0), m_CurrRow(COLUMNS -1)
 {
 	m_Colors = getTetColors();
 
@@ -63,30 +65,109 @@ Grid& Field::getGrid()
 	return m_Grid;
 }
 
-int Field::clearFullRows()
+void Field::clearFullRows(float diff)
 {
-	size_t completed = 0;
-	for (int y = COLUMNS - 1; y >= 0; --y)
+	switch (m_ClearState)
 	{
-		if (isRowFull(y))
+		case FieldClearState::searchFullRow:
 		{
-			clearRow(y);
-			++completed;
+			if (isRowFull())
+			{
+				m_RowsAnimationAndClear.emplace_back(m_CurrRow);
+				--m_CurrRow;
+			}
+			else if (m_ClearRowsOffset > 0)
+			{
+				m_ClearState = FieldClearState::moveDown;
+			}
+			else if (!m_RowsAnimationAndClear.empty())
+			{
+				m_ClearState = FieldClearState::clear;
+			}
+			else
+				--m_CurrRow;
+			break;
 		}
-		else if (completed > 0)
+		case FieldClearState::animation:
 		{
-			moveRowDown(y, completed);
+			clearRowsAnimation(diff);
+			if (m_IsAnimationEnd)
+			{
+				m_IsAnimationEnd = false;
+				m_ClearRowsOffset = m_RowsAnimationAndClear.size();
+				m_RowsAnimationAndClear.clear();
+				m_ClearState = FieldClearState::searchFullRow;
+			}
+			break;
+		}
+		case FieldClearState::clear:
+		{
+			clearRow();
+			m_ClearState = FieldClearState::animation;
+			break;
+		}
+		case FieldClearState::moveDown:
+		{
+			moveRowDown();
+			--m_CurrRow;
+			m_ClearState = FieldClearState::searchFullRow;
+			break;
 		}
 	}
-	return completed;
 }
 
-bool Field::isRowFull(size_t column)
+void Field::setState(FieldClearState state)
+{
+	m_ClearState = state;
+}
+
+bool Field::isAllRowsCleared()
+{
+	return m_CurrRow <= 0;
+}
+
+int Field::getNumRowsCompleted()
+{
+	return m_ClearRowsOffset;
+}
+
+void Field::updateNumRows()
+{
+	m_CurrRow = COLUMNS - 1;
+	m_ClearRowsOffset = 0;
+}
+
+void Field::drawClearAnimation(sf::RenderTarget& target)
+{
+	float currSize = cellSize * (1.0f - (m_ElapsedAnimationTime / animationDur));
+	for (const auto& currRow : m_RowsAnimationAndClear)
+	{
+		for (size_t x = 0; x < ROWS; ++x)
+		{
+			RectangleShape rect;
+			rect.setSize(Vector2f(currSize, currSize));
+			rect.setPosition(m_Grid[x][currRow].getPosition().x + (cellSize - currSize)/2.f, m_Grid[x][currRow].getPosition().y + (cellSize - currSize) / 2.f);
+			rect.setFillColor(white);
+			target.draw(rect);
+		}
+	}
+}
+
+void Field::clearRowsAnimation(float diff)
+{
+	m_ElapsedAnimationTime += diff;
+	if (m_ElapsedAnimationTime >= animationDur)
+	{
+		m_ElapsedAnimationTime = 0.f;
+		m_IsAnimationEnd = true;
+	}
+}
+
+bool Field::isRowFull()
 {
 	for (size_t x = 0; x < ROWS; ++x)
 	{
-		cout << x << "  " << column << endl;
-		if (m_Grid[x][column].getFillColor() == black)
+		if (m_Grid[x][m_CurrRow].getFillColor() == black)
 		{
 			return false;
 		}
@@ -94,20 +175,23 @@ bool Field::isRowFull(size_t column)
 	return true;
 }
 
-void Field::clearRow(size_t column)
+void Field::clearRow()
 {
-	for (size_t x = 0; x < ROWS; ++x)
+	for (const auto& currRow : m_RowsAnimationAndClear)
 	{
-		m_Grid[x][column].setFillColor(black);
+		for (size_t x = 0; x < ROWS; ++x)
+		{
+			m_Grid[x][currRow].setFillColor(black);
+		}
 	}
 }
 
-void Field::moveRowDown(size_t column, size_t numColumns)
+void Field::moveRowDown()
 {
 	for (size_t x = 0; x < ROWS; ++x)
 	{
-		m_Grid[x][column + numColumns].setFillColor(m_Grid[x][column].getFillColor());
-		m_Grid[x][column].setFillColor(black);
+		m_Grid[x][m_CurrRow + m_ClearRowsOffset].setFillColor(m_Grid[x][m_CurrRow].getFillColor());
+		m_Grid[x][m_CurrRow].setFillColor(black);
 	}
 }
 
@@ -133,4 +217,8 @@ void Field::draw(RenderTarget& target)
 		{
 			target.draw(m_Grid[x][y]);
 		});
+	if (m_ElapsedAnimationTime != 0)
+	{
+		drawClearAnimation(target);
+	}
 }
