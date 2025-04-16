@@ -15,14 +15,21 @@ void ResourceManager::load()
 	{
 		cerr << "Resources have been loaded\n";
 	}
-	/*m_MapTexture[TextureName::EXIT] = loadTexture("images/exit1.png");
-	m_MapTexture[TextureName::EXITPRESSED] = loadTexture("images/exit2.png");
+	m_MapTexture[TextureName::EXIT] = loadTexture("images/exit.png");
+	m_MapTexture[TextureName::EXITPRESSED] = loadTexture("images/exitPressed.png");
 	m_MapTexture[TextureName::NOSOUND] = loadTexture("images/nosound.png");
 	m_MapTexture[TextureName::SOUND] = loadTexture("images/sound.png");
-	m_MapTexture[TextureName::PAUSE] = loadTexture("images/pause1.png");
-	m_MapTexture[TextureName::PAUSEPRESSED] = loadTexture("images/pause2.png");
-	m_MapTexture[TextureName::RESTART] = loadTexture("images/restart1.png");
-	m_MapTexture[TextureName::RESTARTPRESSED] = loadTexture("images/restart2.png");*/
+	m_MapTexture[TextureName::PLAY] = loadTexture("images/play.png");
+	m_MapTexture[TextureName::PLAYPRESSED] = loadTexture("images/playPressed.png");
+	m_MapTexture[TextureName::RESTART] = loadTexture("images/restart.png");
+	m_MapTexture[TextureName::RESTARTPRESSED] = loadTexture("images/restartPressed.png");
+
+	m_MapSound[SoundName::BACK_GROUND] = loadSound("sounds/backSound.mp3");
+	m_MapSound[SoundName::DROP] = loadSound("sounds/sendTet.mp3");
+	m_MapSound[SoundName::MOVE] = loadSound("sounds/moveTet.mp3");
+	m_MapSound[SoundName::ROTATE] = loadSound("sounds/rotateTet.mp3");
+	m_MapSound[SoundName::CLEARLINE] = loadSound("sounds/clearLine.mp3");
+	m_MapSound[SoundName::GAMEOVER] = loadSound("sounds/gameOver.mp3");
 
 	m_MapFont[FontName::GAMEOVER] = loadFont("fonts/gameOverFont.ttf");
 	m_MapFont[FontName::SCORE] = loadFont("fonts/scoreFont.ttf");
@@ -54,6 +61,18 @@ sf::Font* ResourceManager::loadFont(const std::string& path)
 	return font;
 }
 
+sf::Music* ResourceManager::loadSound(const std::string& path)
+{
+	Music* music = new Music();
+	if (!music->openFromFile(path))
+	{
+		cerr << "error open music at this path: " << path << endl;
+		delete music;
+		return nullptr;
+	}
+	return music;
+}
+
 Texture& ResourceManager::getTexture(TextureName name)
 {
 	return *m_MapTexture.at(name);
@@ -62,6 +81,11 @@ Texture& ResourceManager::getTexture(TextureName name)
 sf::Font& ResourceManager::getFont(FontName name)
 {
 	return *m_MapFont.at(name);
+}
+
+sf::Music& ResourceManager::getSound(SoundName name)
+{
+	return *m_MapSound.at(name);
 }
 
 ResourceManager::ResourceManager()

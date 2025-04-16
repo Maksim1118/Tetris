@@ -26,7 +26,6 @@ class Field
 {
 public:
 	Field();
-	void resetColorGrid();
 	void draw(sf::RenderTarget & target);
 	void setPosition(sf::Vector2f pos);
 	bool isCollision(int row, int column);
@@ -34,10 +33,13 @@ public:
 	Grid & getGrid();
 	void clearFullRows(float diff);
 	void setState(FieldClearState state);
+	FieldClearState getState();
 	bool isAllRowsCleared();
 	int getNumRowsCompleted();
-	void updateNumRows();
+	void reset();
+	void update();
 private:
+	void resetColorGrid();
 	void drawClearAnimation(sf::RenderTarget & target);
 	void clearRowsAnimation(float diff);
 	bool isRowFull();

@@ -17,3 +17,15 @@ const Vector2f rectNextTetPos = { 85.f, 60.f };
 const float rectNextTetRadius = 15.f;
 const float rectNextTetOutlineThickness = 5.f;
 const size_t rectNextTetPointCount = 30;
+
+const Vector2f buttonPlayPos = { 170.f, 440.f };
+const Vector2f buttonRestartPos = { 170.f , 530.f };
+const Vector2f buttonSoundPos = { 170.f , 620.f };
+const Vector2f buttonExitPos = { 170.f , 710.f };
+
+const float backGroundMusicVolume = 25.f;
+const float DropTetMusicVolume = 8.f;
+const float MoveTetMusicVolume = 8.f;
+const float RotateTetMusicVolume = 8.f;
+const float ClearLineMusicVolume = 15.f;
+const float GameOverMusicVolume = 25.f;

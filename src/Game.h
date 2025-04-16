@@ -3,6 +3,8 @@
 
 #include "Field.h"
 #include "Tets.h"
+#include "ResourceManager.h"
+#include "Variables.h"
 
 constexpr float DROP_INTERVAL = 0.6f;
 constexpr float DROP_INTERVAL_MIN = 0.03f;
@@ -12,6 +14,7 @@ enum class GameState
 	Playing, 
 	ClearingRow,
 	UpdateElements,
+	Pause,
 	GameOver
 };
 
@@ -26,22 +29,32 @@ public:
 	void moveTetRight();
 	void moveTetDown();
 	int getScore();
+	void pause();
+	void play();
+	void restart();
+	void soundOff();
+	void soundOn();
+	bool isGameOver();
 private:
 	bool isTetOutside();
 	bool isTetFitsEmptyCell();
 
 	bool isUpLimit();
 
-	void playing(float diff);
+	void ciclingMove(float diff);
 	void updateIndex();
 
 	void nextTetDataUpdate();
 
+	void initAudio();
+	void musicRestart();
+	bool isPlayingMusic(sf::Music& music, float volumeDecrease);
+	void musicsHandleEvent();
+	void allMusicPause();
+
 	void rotateTet();
 	void lockTet();
-	void reset();
 	void updateScore(int countLinesCleared, int moveDownPoints);
-	void drawGameOver(sf::RenderTarget& target);
 
 	void shuffleTets();
 	Field m_Field;
@@ -52,10 +65,22 @@ private:
 
 	GameState m_State;
 
+	sf::Music* m_BackGroundMusic;
+	sf::Music* m_DropTetMusic;
+	sf::Music* m_MoveTetMusic;
+	sf::Music* m_RotateTetMusic;
+	sf::Music* m_ClearLineMusic;
+	sf::Music* m_GameOverMusic;
+
+	std::vector<sf::Music*> m_GameMusics;
+
 	bool m_IsTetDrop;
 	bool m_IsGameOver;
 
 	bool m_TetIsLock;
+
+	bool m_GamePause;
+	bool m_SoundOff;
 
 	int m_Score;
 

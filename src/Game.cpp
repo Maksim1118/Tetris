@@ -1,15 +1,13 @@
 #include "Game.h"
 #include <stdexcept>
 
-#include "ResourceManager.h"
-#include "Variables.h"
-
 using namespace sf;
 using namespace std;
 
 Game::Game()
 	:m_IsTetDrop(false), m_ElapsedTime(0.f), 
-	m_DropInterval(DROP_INTERVAL), m_CurrTetIndex(0), m_IsGameOver(false), m_Score(0), m_State(GameState::Playing), m_TetIsLock(false)
+	m_DropInterval(DROP_INTERVAL), m_CurrTetIndex(0), m_IsGameOver(false), m_Score(0), 
+	m_State(GameState::Playing), m_TetIsLock(false), m_GamePause(false), m_SoundOff(false)
 {
 	m_Tets = { LTet(), JTet(), ITet(), OTet(), STet(), TTet(), ZTet() };
 	shuffleTets();
@@ -21,6 +19,7 @@ Game::Game()
 	m_CurrTet = m_Tets.at(m_CurrTetIndex);
 	m_NextTet = m_Tets.at(m_CurrTetIndex+1);
 	nextTetDataUpdate();
+	initAudio();
 }
 
 void Game::shuffleTets()
@@ -39,6 +38,11 @@ void Game::moveTetLeft()
 	{
 		m_CurrTet.move(1, 0);
 	}
+	else
+	{
+		if (!m_SoundOff)
+			m_MoveTetMusic->play();
+	}
 	/*if (!m_GameOver)
 	{
 		m_CurrTet.move(-1, 0);
@@ -55,6 +59,11 @@ void Game::moveTetRight()
 	if (isTetOutside() || !isTetFitsEmptyCell())
 	{
 		m_CurrTet.move(-1, 0);
+	}
+	else
+	{
+		if (!m_SoundOff)
+			m_MoveTetMusic->play();
 	}
 	/*if (!m_GameOver)
 	{
@@ -88,6 +97,16 @@ void Game::moveTetDown()
 int Game::getScore()
 {
 	return m_Score;
+}
+
+void Game::pause()
+{
+	m_GamePause = true;
+}
+
+void Game::play()
+{
+	m_GamePause = false;
 }
 
 bool Game::isTetOutside()
@@ -124,7 +143,7 @@ bool Game::isUpLimit()
 	return false;
 }
 
-void Game::playing(float diff)
+void Game::ciclingMove(float diff)
 {
 	m_ElapsedTime += diff;
 
@@ -174,6 +193,10 @@ void Game::rotateTet()
 	{
 		m_CurrTet.undoRotate();
 	}
+	else
+	{  if(!m_SoundOff)
+			m_RotateTetMusic->play();
+	}
 }
 
 void Game::lockTet()
@@ -188,14 +211,172 @@ void Game::lockTet()
 	}
 }
 
-void Game::reset()
+void Game::restart()
 {
-	m_Field.resetColorGrid();
+	m_Field.reset();
 	shuffleTets();
 	m_CurrTetIndex = 0;
 	m_CurrTet = m_Tets[m_CurrTetIndex];
 	m_NextTet = m_Tets[m_CurrTetIndex + 1];
+	nextTetDataUpdate();
 	m_Score = 0;
+	m_TetIsLock = false;
+	m_IsTetDrop = false;
+	m_IsGameOver = false;
+	m_State = GameState::Playing;
+	m_Field.setState(FieldClearState::searchFullRow);
+	musicRestart();
+}
+
+void Game::soundOff()
+{
+	m_SoundOff = true;
+	m_BackGroundMusic->stop();
+}
+
+void Game::soundOn()
+{
+	if(m_SoundOff)
+		m_BackGroundMusic->play();
+	m_SoundOff = false;
+}
+
+bool Game::isGameOver()
+{
+	return m_IsGameOver;
+}
+
+void Game::initAudio()
+{
+	m_BackGroundMusic = &ResourceManager::getInstance().getSound(SoundName::BACK_GROUND);
+	m_BackGroundMusic->setVolume(backGroundMusicVolume);
+	m_BackGroundMusic->setLoop(true);
+	m_BackGroundMusic->play();
+
+	m_DropTetMusic = &ResourceManager::getInstance().getSound(SoundName::DROP);
+	m_DropTetMusic->setVolume(DropTetMusicVolume);
+	m_GameMusics.emplace_back(m_DropTetMusic);
+
+	m_MoveTetMusic = &ResourceManager::getInstance().getSound(SoundName::MOVE);
+	m_MoveTetMusic->setVolume(MoveTetMusicVolume);
+	m_GameMusics.emplace_back(m_MoveTetMusic);
+
+	m_RotateTetMusic = &ResourceManager::getInstance().getSound(SoundName::ROTATE);
+	m_RotateTetMusic->setVolume(RotateTetMusicVolume);
+	m_GameMusics.emplace_back(m_RotateTetMusic);
+
+	m_ClearLineMusic = &ResourceManager::getInstance().getSound(SoundName::CLEARLINE);
+	m_ClearLineMusic->setVolume(ClearLineMusicVolume);
+	m_GameMusics.emplace_back(m_ClearLineMusic);
+
+	m_GameOverMusic = &ResourceManager::getInstance().getSound(SoundName::GAMEOVER);
+	m_GameOverMusic->setVolume(GameOverMusicVolume);
+	m_GameMusics.emplace_back(m_GameOverMusic);
+}
+
+void Game::musicRestart()
+{
+	m_BackGroundMusic->stop();
+	m_BackGroundMusic->setPlayingOffset(Time::Zero);
+	m_BackGroundMusic->play();
+
+	for (auto& music : m_GameMusics)
+	{
+		music->stop();
+		music->setPlayingOffset(Time::Zero);
+	}
+}
+
+bool Game::isPlayingMusic(Music& music, float volumeDecrease)
+{
+	if (music.getStatus() == Sound::Playing)
+	{
+		m_BackGroundMusic->setVolume(backGroundMusicVolume * volumeDecrease);
+		return  true;
+	}
+	else if (music.getStatus() == Sound::Paused)
+	{
+		music.play();
+	}
+	return false;
+}
+
+void Game::musicsHandleEvent()
+{
+	bool isAnySoundPlaying = false;
+	for (const auto& music : m_GameMusics)
+	{
+		if (isPlayingMusic(*music, 0.5f))
+		{
+			isAnySoundPlaying = true;
+			break;
+		}
+	}
+	
+	if (!isAnySoundPlaying)
+	{
+		m_BackGroundMusic->setVolume(backGroundMusicVolume);
+	}
+	/*if (m_DropTetMusic->getStatus() == Sound::Playing)
+	{
+		isAnySoundPlaying = true;
+		m_BackGroundMusic->setVolume(backGroundMusicVolume * 0.3f);
+	}
+	else if (m_DropTetMusic->getStatus() == Sound::Paused)
+	{
+		m_DropTetMusic->play();
+	}
+
+	if (m_GameOverMusic->getStatus() == Sound::Playing)
+	{
+		isAnySoundPlaying = true;
+		m_BackGroundMusic->setVolume(backGroundMusicVolume * 0.1f);
+	}
+	else if (m_GameOverMusic->getStatus() == Sound::Paused)
+	{
+		m_GameOverMusic->play();
+	}
+
+
+	if (m_MoveTetMusic->getStatus() == Sound::Playing)
+	{
+		isAnySoundPlaying = true;
+		m_BackGroundMusic->setVolume(backGroundMusicVolume * 0.9f);
+	}
+	else if (m_MoveTetMusic->getStatus() == Sound::Paused)
+	{
+		m_MoveTetMusic->play();
+	}
+
+
+	if (m_RotateTetMusic->getStatus() == Sound::Playing)
+	{
+		isAnySoundPlaying = true;
+		m_BackGroundMusic->setVolume(backGroundMusicVolume * 0.9f);
+	}
+	else if (m_RotateTetMusic->getStatus() == Sound::Paused)
+	{
+		m_RotateTetMusic->play();
+	}
+
+	if (m_ClearLineMusic->getStatus() == Sound::Playing)
+	{
+		isAnySoundPlaying = true;
+		m_BackGroundMusic->setVolume(backGroundMusicVolume * 0.5f);
+	}
+	else if (m_ClearLineMusic->getStatus() == Sound::Paused)
+	{
+		m_ClearLineMusic->play();
+	}*/
+}
+
+
+void Game::allMusicPause()
+{
+	for (const auto& music : m_GameMusics)
+	{
+		music->pause();
+	}
 }
 
 void Game::updateScore(int countLinesCleared, int moveDownPoints)
@@ -223,22 +404,10 @@ void Game::updateScore(int countLinesCleared, int moveDownPoints)
 	m_Score += moveDownPoints;
 }
 
-void Game::drawGameOver(RenderTarget& target)
-{
-	Font font = ResourceManager::getInstance().getFont(FontName::GAMEOVER);
-	sf::Text gameOverText;
-	gameOverText.setFont(font);
-	gameOverText.setString("Game Over");
-	gameOverText.setCharacterSize(80);
-	gameOverText.setFillColor(sf::Color::Red);
-	gameOverText.setPosition(200.f, 200.f);
-
-	target.draw(gameOverText);
-}
 
 void Game::handleEvent(Event& event)
 {
-		
+	musicsHandleEvent();
 	if (event.type == Event::KeyPressed && m_State == GameState::Playing)
 	{
 		switch (event.key.code)
@@ -257,6 +426,10 @@ void Game::handleEvent(Event& event)
 
 			case Keyboard::Down:
 			{
+				if (!m_IsTetDrop && !m_SoundOff)
+				{
+					m_DropTetMusic->play();
+				}
 				m_IsTetDrop = true;
 				updateScore(0, 1);
 				break;
@@ -268,30 +441,27 @@ void Game::handleEvent(Event& event)
 			}
 		}
 	}
-	if (event.type == Event::KeyPressed && m_State == GameState::GameOver)
-	{
-		if (event.key.code == Keyboard::Enter)
-		{
-			/*if (m_GameOver)
-			{
-				m_GameOver = false;
-				reset();
-			}*/
-		}
-	}
 }
 
 void Game::timeElapsed(float diff)
 {
+
 	switch (m_State)
 	{
 		case GameState::Playing:
 		{
-			playing(diff);
-			if (m_TetIsLock)
+			if (m_GamePause)
+			{
+				m_State = GameState::Pause;
+			}
+			else if (m_TetIsLock)
 			{
 				lockTet();
 				m_State = GameState::ClearingRow;
+			}
+			else
+			{
+				ciclingMove(diff);
 			}
 			break;
 		}
@@ -302,10 +472,20 @@ void Game::timeElapsed(float diff)
 				m_State = GameState::GameOver;
 				break;
 			}
-			/*m_Field.setState(FieldClearState::searchFullRow);*/
 			m_Field.clearFullRows(diff);
+			if (m_Field.getState() == FieldClearState::clear && !m_SoundOff)
+			{
+				m_ClearLineMusic->play();
+			}
 			if(m_Field.isAllRowsCleared())
 				m_State = GameState::UpdateElements;
+			break;
+		}
+		case GameState::Pause:
+		{
+			allMusicPause();
+			if (!m_GamePause)
+				m_State = GameState::Playing;
 			break;
 		}
 		case GameState::UpdateElements:
@@ -313,13 +493,18 @@ void Game::timeElapsed(float diff)
 			m_Field.setState(FieldClearState::searchFullRow);
 			updateScore(m_Field.getNumRowsCompleted(), 0);
 			updateIndex();
-			m_Field.updateNumRows();
+			m_Field.update();
 			m_TetIsLock = false;
 			m_State = GameState::Playing;
 			break;
 		}
 		case GameState::GameOver:
 		{
+			if (!m_IsGameOver && !m_SoundOff)
+			{
+				m_GameOverMusic->play();
+			}
+			m_IsGameOver = true;
 			break;
 		}
 	}

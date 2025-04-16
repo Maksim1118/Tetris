@@ -31,14 +31,6 @@ Field::Field()
 		});
 }
 
-void Field::resetColorGrid()
-{
-	forEachGridCell([this](size_t x, size_t y)
-		{
-			m_Grid[x][y].setFillColor(black);
-		});
-}
-
 void Field::forEachGridCell(function<void(size_t, size_t)> func)
 {
 	for (size_t y = 0; y < COLUMNS; ++y)
@@ -121,6 +113,11 @@ void Field::setState(FieldClearState state)
 	m_ClearState = state;
 }
 
+FieldClearState Field::getState()
+{
+	return m_ClearState;
+}
+
 bool Field::isAllRowsCleared()
 {
 	return m_CurrRow <= 0;
@@ -131,10 +128,26 @@ int Field::getNumRowsCompleted()
 	return m_ClearRowsOffset;
 }
 
-void Field::updateNumRows()
+
+void Field::reset()
+{
+	resetColorGrid();
+	update();
+}
+
+void Field::update()
 {
 	m_CurrRow = COLUMNS - 1;
 	m_ClearRowsOffset = 0;
+	m_RowsAnimationAndClear.shrink_to_fit();
+}
+
+void Field::resetColorGrid()
+{
+	forEachGridCell([this](size_t x, size_t y)
+		{
+			m_Grid[x][y].setFillColor(black);
+		});
 }
 
 void Field::drawClearAnimation(sf::RenderTarget& target)
